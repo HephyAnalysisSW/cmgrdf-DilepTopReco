@@ -135,5 +135,5 @@ cd ..
 To run an example reconstruction code and produce a root ntuple:
 ```
 cd test
-python run_test.py
+python3 run_test.py
 ```
