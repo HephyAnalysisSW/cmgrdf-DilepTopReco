@@ -11,10 +11,10 @@ The implementation is adopted from the [pepper framework](https://gitlab.cern.ch
 
 ### Code structure:
 
-- The main algorithm is implemented in [TopReco/TopReco.h](https://github.com/HephyAnalysisSW/cmgrdf-GluonPDF/blob/main/TopReco/TopReco.h)
+- The main algorithm is implemented in [TopReco/TopReco.h](https://github.com/HephyAnalysisSW/cmgrdf-DilepTopReco/blob/main/TopReco/TopReco.h)
   - `class TopRecoSolution` is the object of the result of the top reconstruction
   - `class TTDilepReconstruction` is the object the performs the top reconstruction
-- The algorithm can be used in function `topreco_solution` [TopReco/toprecofunctions.h](https://github.com/HephyAnalysisSW/cmgrdf-GluonPDF/blob/main/TopReco/toprecofunctions.h)
+- The algorithm can be used in function `topreco_solution` [TopReco/toprecofunctions.h](https://github.com/HephyAnalysisSW/cmgrdf-DilepTopReco/blob/main/TopReco/toprecofunctions.h)
 - Input:
     - The object of `class TTDilepReconstruction`
     - 4 vectors (ROOT::Math::PxPyPzEVector) of leptons and jets
@@ -27,7 +27,7 @@ The implementation is adopted from the [pepper framework](https://gitlab.cern.ch
 
 ### Example to run in RDataFrame
 
-- Include the C++ helper functions [TopReco/toprecofunctions.h](https://github.com/HephyAnalysisSW/cmgrdf-GluonPDF/blob/main/TopReco/toprecofunctions.h)
+- Include the C++ helper functions [TopReco/toprecofunctions.h](https://github.com/HephyAnalysisSW/cmgrdf-DilepTopReco/blob/main/TopReco/toprecofunctions.h)
 ```
 # include C++ helper functions
 import ROOT
@@ -122,13 +122,13 @@ source /cvmfs/sft.cern.ch/lcg/views/LCG_106c/x86_64-el9-gcc13-opt/setup.sh
 ```
 Install the package (to be done for only once):
 ```
-git clone --recursive git@github.com:HephyAnalysisSW/cmgrdf-GluonPDF.git # one can also use the https: https://github.com/HephyAnalysisSW/cmgrdf-GluonPDF.git
-cd cmgrdf-GluonPDF/cmgrdf-prototype
+git clone --recursive git@github.com:HephyAnalysisSW/cmgrdf-DilepTopReco.git
+cd cmgrdf-DilepTopReco/cmgrdf-prototype
 make -j 4
 ```
 Set the environment variables (needs to be done every time):
 ```
-cd cmgrdf-GluonPDF/cmgrdf-prototype
+cd cmgrdf-DilepTopReco/cmgrdf-prototype
 eval $(make env)
 cd ..
 ```
