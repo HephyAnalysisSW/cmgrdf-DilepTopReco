@@ -2,11 +2,13 @@ from CMGRDF import *
 import ROOT
 ROOT.EnableImplicitMT(4)
 from CMGRDF.collectionUtils import *
-AddHeader("toprecofunctions.h","${CMGRDF}/../TopReco")
+
+# Top reconstruction
+AddHeader("toprecofunctions.h", "${CMGRDF}/../TopReco")
 
 useHists = True
 if useHists:
-    f_hists_path = "${CMGRDF}/../test/kinreco.root"
+    f_hists_path = "${CMGRDF}/../TopReco/kinreco.root"
     f_hists = ROOT.TFile.Open(f_hists_path)
     load_hists = '''
 auto h_mlb = mlb; h_mlb->SetDirectory(0);
