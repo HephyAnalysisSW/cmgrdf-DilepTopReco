@@ -7,9 +7,9 @@ The algorithm is based on [Sonnenschein’s paper](https://arxiv.org/abs/hep-ph/
 
 The implementation is adopted from the [pepper framework](https://gitlab.cern.ch/pepper/pepper/-/blob/master/pepper/kinreco_sonnenschein.py?ref_type=heads).
 
-## How to use:
+# How to use:
 
-### Code structure:
+## Code structure:
 
 - The main algorithm is implemented in [TopReco/TopReco.h](https://github.com/HephyAnalysisSW/cmgrdf-DilepTopReco/blob/main/TopReco/TopReco.h)
   - `class TopRecoSolution` is the object of the result of the top reconstruction
@@ -25,7 +25,7 @@ The implementation is adopted from the [pepper framework](https://gitlab.cern.ch
     - A `std::pair` that includes the reconstruction result (first) and jet indices used in the reconstruction (second)
 
 
-### Example to run in RDataFrame
+## Example to run in RDataFrame
 
 - Include the C++ helper functions [TopReco/toprecofunctions.h](https://github.com/HephyAnalysisSW/cmgrdf-DilepTopReco/blob/main/TopReco/toprecofunctions.h)
 ```
@@ -114,18 +114,17 @@ d = d.Define("antinu_mass", "TopRecoSol.first.antinu.M()"),
 ```
 - Make histograms (RDataFrame::Histos1D, ...) or save as a new ntuple (RDataFrame::Snapshot).
 
-### Example to run in CMGRDF
-Set up a EL9 container and link the necessary packages (needs to be done every time):
+## Example to run in CMGRDF
+Set up a EL9 container (e.g. if not running on LXPLUS) and link the necessary packages - needs to be done every time:
 ```
 cmssw-el9
-source /cvmfs/sft.cern.ch/lcg/views/LCG_106c/x86_64-el9-gcc13-opt/setup.sh
+source /cvmfs/sft.cern.ch/lcg/views/LCG_108/x86_64-el9-gcc14-opt/setup.sh
 ```
 Install the package (to be done for only once):
-```
-git clone --recursive git@github.com:HephyAnalysisSW/cmgrdf-DilepTopReco.git
-cd cmgrdf-DilepTopReco/cmgrdf-prototype
-make -j 4
-```
+
+- clone the package and all submodules recursively with `git clone --recursive git@github.com:HephyAnalysisSW/cmgrdf-DilepTopReco.git`
+- follow the instructions in `cmgrdf-prototype/README.md`
+
 Set the environment variables (needs to be done every time):
 ```
 cd cmgrdf-DilepTopReco/cmgrdf-prototype
@@ -137,3 +136,8 @@ To run an example reconstruction code and produce a root ntuple:
 cd test
 python3 run_test.py
 ```
+
+To do the same thing with systematics, including RDataFrame event-based multi-threading (with e.g. 8 threads), run:
+```
+python run_test_with_systs.py -j 8
+``` 
