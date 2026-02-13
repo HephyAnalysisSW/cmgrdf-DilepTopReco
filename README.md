@@ -136,8 +136,32 @@ To run an example reconstruction code and produce a root ntuple:
 cd test
 python3 run_test.py
 ```
+### Analysis-level example with object selection and event scale factors, including systematics
 
-To do the same thing with systematics, including RDataFrame event-based multi-threading (with e.g. 8 threads), run:
+`run_test_with_systs.py` is closer to what one would use in an analysis.
+
+It includes reasonable selections on physics objects mostly based on the ones from TOP-20-006.
+
+A large set of systematics is included, following recommendations from CMS Top Systematics TWiki <https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopSystematics>:
+- muon ID and isolation SF
+- electron SF
+- jet PU ID SF
+- pileup SF
+- b-tagging SF
+- JES + JER, applied to both jets and MET (from Type-1 corrections)
+- Unclustered MET
+
+Impact of JES and JER on jets and MET + unclustered MET variations propagated to Top reconstruction.
+- Snapshot with Vary'ed quantities currently not working, so variations are propagated by hand using Define in `utils/top_reco_sequences.py`
+
+To be added:
+- DCTR reweighting for hdamp variations
+- Top pt reweighting
+- Muon SF uncertainty split into stat and syst components
+- trigger SFs + uncertainties
+- b-tagging efficiencies in dileptonic ttbar phase space (currently using efficiencies from ttZ events)
+
+To run `run_test_with_systs.py` including RDataFrame event-based multi-threading (with e.g. 8 threads), run:
 ```
 python run_test_with_systs.py -j 8
 ``` 
