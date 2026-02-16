@@ -224,7 +224,7 @@ if __name__ == "__main__":
     # calculating and caching sum of gen weights based on given genWeightName
     # normalized weight is "mcSampleWeight"
     data = [Process(f"TTLep_pow", MCSample(f"TTLep_pow",
-                                           f"/afs/cern.ch/work/r/rcoelhob/work/top_framework/TTLep_pow_2018_skimmed_NanoAODv9_120k.root",
+                                           f"/afs/cern.ch/user/r/rcoelhob/public/top_reco_framework/TTLep_pow_2018_skimmed_NanoAODv9_120k.root",
                                            eras=["2018"], genWeightName = "Generator_weight", xsec = 831.76*((3*0.108)**2)),
                     signal=True)]
 
