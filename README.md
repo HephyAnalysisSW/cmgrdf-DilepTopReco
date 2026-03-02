@@ -115,6 +115,7 @@ d = d.Define("antinu_mass", "TopRecoSol.first.antinu.M()"),
 - Make histograms (RDataFrame::Histos1D, ...) or save as a new ntuple (RDataFrame::Snapshot).
 
 ## Example to run in CMGRDF
+
 Set up a EL9 container (e.g. if not running on LXPLUS) and link the necessary packages - needs to be done every time:
 ```
 cmssw-el9
@@ -131,18 +132,14 @@ cd cmgrdf-DilepTopReco/cmgrdf-prototype
 eval $(make env)
 cd ..
 ```
-To run an example reconstruction code and produce a root ntuple:
-```
-cd test
-python3 run_test.py
-```
+
 ### Analysis-level example with object selection and event scale factors, including systematics
 
-`run_test_with_systs.py` is closer to what one would use in an analysis.
+`run_test_with_systs.py` is an example to produce an ntuple similar to what one would use in an analysis.
 
 It includes reasonable selections on physics objects mostly based on the ones from TOP-20-006.
 
-A large set of systematics is included, following recommendations from CMS Top Systematics TWiki <https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopSystematics>:
+A large set of systematics is included, following recommendations from the CMS Top Systematics TWiki <https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopSystematics>:
 - muon ID and isolation SF
 - electron SF
 - jet PU ID SF
@@ -161,7 +158,9 @@ To be added:
 - trigger SFs + uncertainties
 - b-tagging efficiencies in dileptonic ttbar phase space (currently using efficiencies from ttZ events)
 
-To run `run_test_with_systs.py` including RDataFrame event-based multi-threading (with e.g. 8 threads), run:
+To run `run_test_with_systs.py` including RDataFrame event-based multi-threading (highly recommended) with e.g. 8 threads, run:
 ```
 python run_test_with_systs.py -j 8
-``` 
+```
+
+Systematics are included by default in this example (see the `maker.book(...)` call at the end). If you want to just have the nominal branches, remove `withUncertainties=True`. In this case, if you want to add systematics via a flag, run the script with `-u` at the end.
