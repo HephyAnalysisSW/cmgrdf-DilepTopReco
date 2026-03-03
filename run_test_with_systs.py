@@ -13,9 +13,9 @@ from CMGRDF.collectionUtils import *  # several very nice utility functions
 from CMGRDF.skimFilters import TriggerBitFilter
 
 from utils.jmeUncertainties import jme_sequences, jme_sequences_after
-from utils.jet_selection_sequences import jet_selection_sequence_nominal, jet_selection_sequences_variations_MC
+from utils.jet_selection_sequences import jet_selection_sequence_nominal, jet_selection_sequences_variations
 
-from utils.top_reco_sequences import p4_reconstruction_sequences, top_reconstruction_sequence_nominal, top_reconstruction_sequences_jme_variations
+from utils.top_reco_sequences import p4_reconstruction_sequence_nominal, top_reconstruction_sequence_nominal, p4_reconstruction_sequences_variations, top_reconstruction_sequences_jme_variations
 
 from utils.btagSF import btagsf_sequences
 
@@ -90,8 +90,8 @@ objreco_cuts = Flow("objreco_cuts",
                     # trigger_sequences_data,
                     # MET filters, see https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETOptionalFiltersRun2#UL_data
                     # commented out until we test Cut again (crashing before)
-                    # Cut("filters_common"," && ".join([f"Flag_{flagname}" for flagname in list_common_filters]), onData=True, onDataDriven=True, onMC=False),
-                    # Cut("additional_filter_17_18", "Flag_ecalBadCalibFilter", eras=["2017","2018"], onData=True, onDataDriven=True, onMC=False),
+                    Cut("filters_common"," && ".join([f"Flag_{flagname}" for flagname in list_common_filters]), onData=True, onDataDriven=True, onMC=False),
+                    Cut("additional_filter_17_18", "Flag_ecalBadCalibFilter", eras=["2017","2018"], onData=True, onDataDriven=True, onMC=False),
 
                     trigger_OR_flag_sequences_MC,
 
@@ -101,17 +101,26 @@ objreco_cuts = Flow("objreco_cuts",
 
                     # Muon_tightID includes the criteria that muon is a PF candidate, pfIsoID==4 <-> Tight isolation
                     muonSF_sequences,
+
+                    # copy with SF for MC, without MC for data
                     DefineSkimmedCollection("Muon_good", "Muon", cut="abs(Muon_eta) < 2.4 && Muon_pt > 20 && Muon_tightId && Muon_pfIsoId >= 4", members=[
-                                            "pt", "eta", "phi", "mass", "charge", "pdgId", "SF_TightId_TightIso","SF_TightId_TightIso_CMS_eff_m_up","SF_TightId_TightIso_CMS_eff_m_down"]),
+                                            "pt", "eta", "phi", "mass", "charge", "pdgId", "SF_TightId_TightIso","SF_TightId_TightIso_CMS_eff_m_up","SF_TightId_TightIso_CMS_eff_m_down"], onData=False, onDataDriven=False),
 
-
+                    # copy with SF for MC, without MC for data - will also be done for electrons below
+                    DefineSkimmedCollection("Muon_good", "Muon", cut="abs(Muon_eta) < 2.4 && Muon_pt > 20 && Muon_tightId && Muon_pfIsoId >= 4", members=[
+                                            "pt", "eta", "phi", "mass", "charge", "pdgId"], onMC=False),
 
                     electronSF_sequences,
                     # Electron_cutBased==4 includes relative isolation cuts
                     DefineSkimmedCollection("Electron_good", "Electron", cut="!(abs(Electron_eta+Electron_deltaEtaSC)>1.442 && abs(Electron_eta+Electron_deltaEtaSC)<1.556) "
                                             "&& abs(Electron_eta)<2.4 && Electron_pt > 20 && Electron_cutBased==4 &&"
                                             "((Electron_eta+Electron_deltaEtaSC < 1.479 && abs(Electron_dz) < 0.10 && abs(Electron_dxy) < 0.05) || "
-                                            " (Electron_eta+Electron_deltaEtaSC > 1.479 && abs(Electron_dz) < 0.20 && abs(Electron_dxy) < 0.10))", members=["pt", "eta", "phi", "mass", "charge", "pdgId", "SF_Tight","SF_Tight_CMS_eff_e_up","SF_Tight_CMS_eff_e_down"]),
+                                            " (Electron_eta+Electron_deltaEtaSC > 1.479 && abs(Electron_dz) < 0.20 && abs(Electron_dxy) < 0.10))", members=["pt", "eta", "phi", "mass", "charge", "pdgId", "SF_Tight","SF_Tight_CMS_eff_e_up","SF_Tight_CMS_eff_e_down"], onData=False, onDataDriven=False),
+
+                    DefineSkimmedCollection("Electron_good", "Electron", cut="!(abs(Electron_eta+Electron_deltaEtaSC)>1.442 && abs(Electron_eta+Electron_deltaEtaSC)<1.556) "
+                                            "&& abs(Electron_eta)<2.4 && Electron_pt > 20 && Electron_cutBased==4 &&"
+                                            "((Electron_eta+Electron_deltaEtaSC < 1.479 && abs(Electron_dz) < 0.10 && abs(Electron_dxy) < 0.05) || "
+                                            " (Electron_eta+Electron_deltaEtaSC > 1.479 && abs(Electron_dz) < 0.20 && abs(Electron_dxy) < 0.10))", members=["pt", "eta", "phi", "mass", "charge", "pdgId"], onMC=False),
 
                     # concatenating the branches for the leptons
                     Define("Lepton_good_pt_unsorted", "ROOT::VecOps::Concatenate(Muon_good_pt,Electron_good_pt)"),
@@ -120,9 +129,9 @@ objreco_cuts = Flow("objreco_cuts",
                     Define("Lepton_good_mass_unsorted", "ROOT::VecOps::Concatenate(Muon_good_mass,Electron_good_mass)"),
                     Define("Lepton_good_charge_unsorted", "ROOT::VecOps::Concatenate(Muon_good_charge,Electron_good_charge)"),
                     Define("Lepton_good_pdgId_unsorted", "ROOT::VecOps::Concatenate(Muon_good_pdgId,Electron_good_pdgId)"),
-                    Define("Lepton_good_SF_unsorted", "ROOT::VecOps::Concatenate(Muon_good_SF_TightId_TightIso,Electron_good_SF_Tight)"),
-                    Define("Lepton_good_SFUp_unsorted", "ROOT::VecOps::Concatenate(Muon_good_SF_TightId_TightIso_CMS_eff_m_up,Electron_good_SF_Tight_CMS_eff_e_up)"),
-                    Define("Lepton_good_SFDn_unsorted", "ROOT::VecOps::Concatenate(Muon_good_SF_TightId_TightIso_CMS_eff_m_down,Electron_good_SF_Tight_CMS_eff_e_down)"),
+                    Define("Lepton_good_SF_unsorted", "ROOT::VecOps::Concatenate(Muon_good_SF_TightId_TightIso,Electron_good_SF_Tight)", onData=False, onDataDriven=False),
+                    Define("Lepton_good_SFUp_unsorted", "ROOT::VecOps::Concatenate(Muon_good_SF_TightId_TightIso_CMS_eff_m_up,Electron_good_SF_Tight_CMS_eff_e_up)", onData=False, onDataDriven=False),
+                    Define("Lepton_good_SFDn_unsorted", "ROOT::VecOps::Concatenate(Muon_good_SF_TightId_TightIso_CMS_eff_m_down,Electron_good_SF_Tight_CMS_eff_e_down)", onData=False, onDataDriven=False),
 
                     # ordering relevant lepton branches by pT - highest to lowest
                     Define("Lepton_good_pt_sortindex", "ROOT::VecOps::Reverse(ROOT::VecOps::Argsort(Lepton_good_pt_unsorted))"),
@@ -132,9 +141,9 @@ objreco_cuts = Flow("objreco_cuts",
                     Define("Lepton_good_mass", "ROOT::VecOps::Take(Lepton_good_mass_unsorted,Lepton_good_pt_sortindex)"),
                     Define("Lepton_good_charge", "ROOT::VecOps::Take(Lepton_good_charge_unsorted,Lepton_good_pt_sortindex)"),
                     Define("Lepton_good_pdgId", "ROOT::VecOps::Take(Lepton_good_pdgId_unsorted,Lepton_good_pt_sortindex)"),
-                    Define("Lepton_good_SF", "ROOT::VecOps::Take(Lepton_good_SF_unsorted,Lepton_good_pt_sortindex)"),
-                    Define("Lepton_good_SFUp", "ROOT::VecOps::Take(Lepton_good_SFUp_unsorted,Lepton_good_pt_sortindex)"),
-                    Define("Lepton_good_SFDn", "ROOT::VecOps::Take(Lepton_good_SFDn_unsorted,Lepton_good_pt_sortindex)"),
+                    Define("Lepton_good_SF", "ROOT::VecOps::Take(Lepton_good_SF_unsorted,Lepton_good_pt_sortindex)", onData=False, onDataDriven=False),
+                    Define("Lepton_good_SFUp", "ROOT::VecOps::Take(Lepton_good_SFUp_unsorted,Lepton_good_pt_sortindex)", onData=False, onDataDriven=False),
+                    Define("Lepton_good_SFDn", "ROOT::VecOps::Take(Lepton_good_SFDn_unsorted,Lepton_good_pt_sortindex)", onData=False, onDataDriven=False),
 
                     Define("nLepton_good", "Lepton_good_pt.size()"),
                     
@@ -157,14 +166,14 @@ objreco_cuts = Flow("objreco_cuts",
                     Define("lep0_pdgId", "( nLepton_good > 0 ) ? Lepton_good_pdgId.at(0) : std::nan(\"\") "),
                     Define("lep1_pdgId", "( nLepton_good > 1 ) ? Lepton_good_pdgId.at(1) : std::nan(\"\") "),
 
-                    Define("lep0_SF", "( nLepton_good > 0 ) ? Lepton_good_SF.at(0) : std::nan(\"\") "),
-                    Define("lep1_SF", "( nLepton_good > 1 ) ? Lepton_good_SF.at(1) : std::nan(\"\") "),
+                    Define("lep0_SF", "( nLepton_good > 0 ) ? Lepton_good_SF.at(0) : std::nan(\"\") ", onData=False, onDataDriven=False),
+                    Define("lep1_SF", "( nLepton_good > 1 ) ? Lepton_good_SF.at(1) : std::nan(\"\") ", onData=False, onDataDriven=False),
 
-                    Define("lep0_SFUp", "( nLepton_good > 0 ) ? Lepton_good_SFUp.at(0) : std::nan(\"\") "),
-                    Define("lep1_SFUp", "( nLepton_good > 1 ) ? Lepton_good_SFUp.at(1) : std::nan(\"\") "),
+                    Define("lep0_SFUp", "( nLepton_good > 0 ) ? Lepton_good_SFUp.at(0) : std::nan(\"\") ", onData=False, onDataDriven=False),
+                    Define("lep1_SFUp", "( nLepton_good > 1 ) ? Lepton_good_SFUp.at(1) : std::nan(\"\") ", onData=False, onDataDriven=False),
 
-                    Define("lep0_SFDn", "( nLepton_good > 0 ) ? Lepton_good_SFDn.at(0) : std::nan(\"\") "),
-                    Define("lep1_SFDn", "( nLepton_good > 1 ) ? Lepton_good_SFDn.at(1) : std::nan(\"\") "),
+                    Define("lep0_SFDn", "( nLepton_good > 0 ) ? Lepton_good_SFDn.at(0) : std::nan(\"\") ", onData=False, onDataDriven=False),
+                    Define("lep1_SFDn", "( nLepton_good > 1 ) ? Lepton_good_SFDn.at(1) : std::nan(\"\") ", onData=False, onDataDriven=False),
 
                     # to get negative lepton and positive antilepton
                     Define("Lepton_idx", "( nLepton_good >=2 ) ? (Lepton_good_charge[0] < 0 ? 0 : 1) : std::nan(\"\")"),
@@ -186,7 +195,7 @@ objreco_cuts = Flow("objreco_cuts",
 
                     # jet and b-jet selection
                     jet_selection_sequence_nominal,
-                    jet_selection_sequences_variations_MC,
+                    jet_selection_sequences_variations,
 
                     # PU ID jet weight
                     jme_sequences_after,
@@ -194,13 +203,15 @@ objreco_cuts = Flow("objreco_cuts",
                     ############################ Top reconstruction #################################
                     
                     # reconstructing 4-vectors of selected jets for nominal and jet/MET variations
-                    p4_reconstruction_sequences,
+                    p4_reconstruction_sequence_nominal,
+                    p4_reconstruction_sequences_variations,
 
                     # sqrt(s), used for x reconstruction
                     Define("sqrts", "13000", eras=run2eras),
                     Define("sqrts", "13600", eras=run3eras),
 
                     # nominal and varied top reconstruction
+                    # also for x1, x2 without and with recoil
                     top_reconstruction_sequence_nominal,
                     top_reconstruction_sequences_jme_variations,
 
@@ -223,19 +234,30 @@ if __name__ == "__main__":
     # normalizes sample based on lumi for given era, cross-section
     # calculating and caching sum of gen weights based on given genWeightName
     # normalized weight is "mcSampleWeight"
-    data = [Process(f"TTLep_pow", MCSample(f"TTLep_pow",
-                                           f"/afs/cern.ch/user/r/rcoelhob/public/top_reco_framework/TTLep_pow_2018_skimmed_NanoAODv9_120k.root",
+    mc = [Process(f"TTLep_pow", MCSample("TTLep_pow",
+                                           "/afs/cern.ch/user/r/rcoelhob/public/top_reco_framework/TTLep_pow_2018_skimmed_NanoAODv9_120k.root",
                                            eras=["2018"], genWeightName = "Generator_weight", xsec = 831.76*((3*0.108)**2)),
                     signal=True)]
 
-    target_snapshot = Snapshot("./test.root",
+    data = [Process(f"data_2018", DataSample(f"data_2018",
+                                        "/afs/cern.ch/user/r/rcoelhob/public/top_reco_framework/DoubleMuon_Run2018D_UL18_GT36_skimmed_NanoAODv9_540k.root",
+                                        eras=["2018"], subera="D"))]
+
+    target_snapshot_MC = Snapshot("./test_MC.root",
                                columnSel=['#new', 'Generator_.*', 'GenMET.*', 'GenPart.*', 'GenJet.*', 'LHE.*','PSWeight.*', "SelJet.*genJetIdx","L1PreFiringWeight.*","genWeight", "event", "run", "luminosityBlock"],
                                columnVeto=['ak4JetVars.*', 'MET_T1.*', 'TopRecoSol.*', '.*unsorted', ".*p4.*", "Muon.*", "Electron.*", "CorrT1METJet.*", "Rho.*", "SelJet__CMS.*__CMS.*"])
 
-    maker.book(data, lumis, objreco_cuts, [target_snapshot], eras=["2018"],withUncertainties = True)
+    target_snapshot_data = Snapshot("./test_data.root",
+                               columnSel=['#new' , "event", "run", "luminosityBlock"],
+                               columnVeto=['ak4JetVars.*', 'MET_T1.*', 'TopRecoSol.*', '.*unsorted', ".*p4.*", "Muon.*", "Electron.*", "CorrT1METJet.*", "Rho.*", "SelJet__CMS.*__CMS.*", ".*Gen.*", ".*gen.*"])
+
+
+    maker.book(mc, lumis, objreco_cuts, [target_snapshot_MC], eras=["2018"],withUncertainties = True)
+
+    maker.book(data, lumis, objreco_cuts, [target_snapshot_data], eras=["2018"])
     
     snapshot_report = maker.runSnapshots()
-    snapshotReport = [f"Snapshoted at {target_snapshot.filename}"]
+    snapshotReport = [f"Snapshoted at {target_snapshot_MC.filename} and {target_snapshot_data.filename}"]
 
     for key, snap in snapshot_report:
         snapshotReport.append("%-10s  %-20s : %10u entries  %9.3f GB   %s" % (key.process, key.sample, snap.entries, snap.size / (1024.**3), snap.fname))
