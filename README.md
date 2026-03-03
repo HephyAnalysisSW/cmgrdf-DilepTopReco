@@ -135,7 +135,7 @@ cd ..
 
 ### Analysis-level example with object selection and event scale factors, including systematics
 
-`run_test_with_systs.py` is an example to produce an ntuple similar to what one would use in an analysis.
+`run_test_with_systs.py` is an example to produce MC and data ntuples similar to what one would use in an analysis.
 
 It includes reasonable selections on physics objects mostly based on the ones from TOP-20-006.
 
