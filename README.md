@@ -163,4 +163,4 @@ To run `run_test_with_systs.py` including RDataFrame event-based multi-threading
 python run_test_with_systs.py -j 8
 ```
 
-Systematics are included by default in this example (see the `maker.book(...)` call at the end). If you want to just have the nominal branches, remove `withUncertainties=True`. In this case, if you want to add systematics via a flag, run the script with `-u` at the end.
+Systematics on MC are included by default in this example (see the `maker.book(...)` call at the end). If you want to just have the nominal branches, remove `withUncertainties=True`. In this case, if you want to add systematics via a flag, run the script with `-u` at the end.
