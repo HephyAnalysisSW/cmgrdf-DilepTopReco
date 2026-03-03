@@ -1,7 +1,7 @@
 from CMGRDF import Define, ReDefine
 from CMGRDF.collectionUtils import DefineSkimmedCollection
 from CMGRDF.cms.eras import run2eras, run3eras
-from utils.jmeUncertainties import jme_variation_names_MC
+from utils.jmeUncertainties import jme_variation_names
 
 from utils.btagWPs import _btagWPs
 
@@ -32,22 +32,22 @@ jet_selection_sequence_nominal = [
 
 ]
 
-jet_selection_sequences_variations_MC = []
+jet_selection_sequences_variations = []
 
 # something smells fishy here with the era definition. TODO: double-check with Sergio
 for era in run2eras:
-    for var in jme_variation_names_MC[era]:
+    for var in jme_variation_names[era]:
         for direction in ["up", "down"]:
             
             variation = f"{var}_{direction}"
 
             if era in ["2016", "2016APV"]:
-                jet_selection_sequences_variations_MC += Define(f"Jet_pass_PU_ID__{variation}", f"(Jet_pt__{variation} < 50 && Jet_puId >= 1) || Jet_pt__{variation} > 50", eras=[era], onMC=True, onData=False, onDataDriven=False),
+                jet_selection_sequences_variations += Define(f"Jet_pass_PU_ID__{variation}", f"(Jet_pt__{variation} < 50 && Jet_puId >= 1) || Jet_pt__{variation} > 50", eras=[era], onData=False, onDataDriven=False),
 
             else:
-                jet_selection_sequences_variations_MC += Define(f"Jet_pass_PU_ID__{variation}", f"(Jet_pt__{variation} < 50 && Jet_puId > 0) || Jet_pt__{variation} > 50", eras=[era], onMC=True, onData=False, onDataDriven=False),
+                jet_selection_sequences_variations += Define(f"Jet_pass_PU_ID__{variation}", f"(Jet_pt__{variation} < 50 && Jet_puId > 0) || Jet_pt__{variation} > 50", eras=[era], onData=False, onDataDriven=False),
 
-            jet_selection_sequences_variations_MC += [
+            jet_selection_sequences_variations += [
 
                 Define(f"Jet_isgood__{variation}", f"cleanByDR(Jet_eta, Jet_phi, Lepton_good_eta, Lepton_good_phi) && abs(Jet_eta)<=2.4 && Jet_pt__{variation}>30 && Jet_jetId==6 && Jet_pass_PU_ID__{variation}", onMC=True, eras=[era], onData=False, onDataDriven=False),
 
@@ -55,9 +55,9 @@ for era in run2eras:
                                         'hadronFlavour', 'partonFlavour', 'genJetIdx'], onMC=True, onData=False, onDataDriven=False, eras=[era]),
 
                 # to fix the naming conventions as COLLECTION_pt, and avoid having double appending in PT
-                ReDefine(f"SelJet__{variation}_pt", f"SelJet__{variation}_pt__{variation}", eras=[era], defineIfMissing=True),
+                ReDefine(f"SelJet__{variation}_pt", f"SelJet__{variation}_pt__{variation}", eras=[era], onData=False, onDataDriven=False, defineIfMissing=True),
 
-                ReDefine(f"SelJet__{variation}_bTagged", f"SelJet__{variation}_btagDeepFlavB >= bTagCut_medium", defineIfMissing=True, eras=[era]),
-                ReDefine(f"nBJet__{variation}", f"Sum(SelJet__{variation}_bTagged)", defineIfMissing=True, eras=[era]),
+                ReDefine(f"SelJet__{variation}_bTagged", f"SelJet__{variation}_btagDeepFlavB >= bTagCut_medium", defineIfMissing=True, onData=False, onDataDriven=False, eras=[era]),
+                ReDefine(f"nBJet__{variation}", f"Sum(SelJet__{variation}_bTagged)", defineIfMissing=True, onData=False, onDataDriven=False, eras=[era]),
 
             ]
