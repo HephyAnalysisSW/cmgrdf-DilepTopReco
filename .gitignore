@@ -1,0 +1,11 @@
+*.pyc
+*.o
+*.so
+.vscode
+*.code-workspace
+.dascache
+*_cache.dir
+run/
+test_data*
+test_MC*
+snapReport.txt

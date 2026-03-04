@@ -7,9 +7,9 @@ The algorithm is based on [Sonnenschein’s paper](https://arxiv.org/abs/hep-ph/
 
 The implementation is adopted from the [pepper framework](https://gitlab.cern.ch/pepper/pepper/-/blob/master/pepper/kinreco_sonnenschein.py?ref_type=heads).
 
-## How to use:
+# How to use:
 
-### Code structure:
+## Code structure:
 
 - The main algorithm is implemented in [TopReco/TopReco.h](https://github.com/HephyAnalysisSW/cmgrdf-DilepTopReco/blob/main/TopReco/TopReco.h)
   - `class TopRecoSolution` is the object of the result of the top reconstruction
@@ -25,7 +25,7 @@ The implementation is adopted from the [pepper framework](https://gitlab.cern.ch
     - A `std::pair` that includes the reconstruction result (first) and jet indices used in the reconstruction (second)
 
 
-### Example to run in RDataFrame
+## Example to run in RDataFrame
 
 - Include the C++ helper functions [TopReco/toprecofunctions.h](https://github.com/HephyAnalysisSW/cmgrdf-DilepTopReco/blob/main/TopReco/toprecofunctions.h)
 ```
@@ -114,26 +114,53 @@ d = d.Define("antinu_mass", "TopRecoSol.first.antinu.M()"),
 ```
 - Make histograms (RDataFrame::Histos1D, ...) or save as a new ntuple (RDataFrame::Snapshot).
 
-### Example to run in CMGRDF
-Set up a EL9 container and link the necessary packages (needs to be done every time):
+## Example to run in CMGRDF
+
+Set up a EL9 container (e.g. if not running on LXPLUS) and link the necessary packages - needs to be done every time:
 ```
 cmssw-el9
-source /cvmfs/sft.cern.ch/lcg/views/LCG_106c/x86_64-el9-gcc13-opt/setup.sh
+source /cvmfs/sft.cern.ch/lcg/views/LCG_108/x86_64-el9-gcc14-opt/setup.sh
 ```
 Install the package (to be done for only once):
-```
-git clone --recursive git@github.com:HephyAnalysisSW/cmgrdf-DilepTopReco.git
-cd cmgrdf-DilepTopReco/cmgrdf-prototype
-make -j 4
-```
+
+- clone the package and all submodules recursively with `git clone --recursive git@github.com:HephyAnalysisSW/cmgrdf-DilepTopReco.git`
+- follow the instructions in `cmgrdf-prototype/README.md`
+
 Set the environment variables (needs to be done every time):
 ```
 cd cmgrdf-DilepTopReco/cmgrdf-prototype
 eval $(make env)
 cd ..
 ```
-To run an example reconstruction code and produce a root ntuple:
+
+### Analysis-level example with object selection and event scale factors, including systematics
+
+`run_test_with_systs.py` is an example to produce MC and data ntuples similar to what one would use in an analysis.
+
+It includes reasonable selections on physics objects mostly based on the ones from TOP-20-006.
+
+A large set of systematics is included, following recommendations from the CMS Top Systematics TWiki <https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopSystematics>:
+- muon ID and isolation SF
+- electron SF
+- jet PU ID SF
+- pileup SF
+- b-tagging SF
+- JES + JER, applied to both jets and MET (from Type-1 corrections)
+- Unclustered MET
+
+Impact of JES and JER on jets and MET + unclustered MET variations propagated to Top reconstruction.
+- Snapshot with Vary'ed quantities currently not working, so variations are propagated by hand using Define in `utils/top_reco_sequences.py`
+
+To be added:
+- DCTR reweighting for hdamp variations
+- Top pt reweighting
+- Muon SF uncertainty split into stat and syst components
+- trigger SFs + uncertainties
+- b-tagging efficiencies in dileptonic ttbar phase space (currently using efficiencies from ttZ events)
+
+To run `run_test_with_systs.py` including RDataFrame event-based multi-threading (highly recommended) with e.g. 8 threads, run:
 ```
-cd test
-python3 run_test.py
+python run_test_with_systs.py -j 8
 ```
+
+Systematics on MC are included by default in this example (see the `maker.book(...)` call at the end). If you want to just have the nominal branches, remove `withUncertainties=True`. In this case, if you want to add systematics via a flag, run the script with `-u` at the end.
