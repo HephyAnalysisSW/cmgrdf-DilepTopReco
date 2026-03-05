@@ -1,3 +1,7 @@
+# WARNING - moved to CERN GitLab (5/3/2026)
+
+This repository has been moved to CERN GitLab: https://gitlab.cern.ch/cms-analysis/top/commontools/cmgrdf-dileptopreco. The GitHub version will no longer be maintained.
+
 # Dileptonic top reconstruction 
 
 The algorithm is based on [Sonnenschein’s paper](https://arxiv.org/abs/hep-ph/0603011) with the following features:
